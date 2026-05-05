@@ -230,32 +230,38 @@ export default function App() {
     return '#DC3545'; 
   };
 
+  // --- KORREKTUR HIER ---
   const saveEntry = () => {
     const parsedStart = parseDate(startDate);
     const parsedEnd = parseDate(endDate);
     
+    // Umwandlung von Komma zu Punkt für korrekte Dezimalzahlen
+    const sanitizedAmount = amount.replace(',', '.');
+    const numericAmount = parseFloat(sanitizedAmount);
+
     if (activeTab === 'add') {
-        if (!name || !amount || !parsedStart || (interval !== 0 && !parsedEnd)) {
-            Alert.alert("Fehler", "Bitte alle Pflichtfelder ausfüllen.");
+        if (!name || isNaN(numericAmount) || !parsedStart || (interval !== 0 && !parsedEnd)) {
+            Alert.alert("Fehler", "Bitte alle Pflichtfelder korrekt ausfüllen.");
             return;
         }
     } else {
-        if (!name || !amount || !parsedStart) {
-            Alert.alert("Fehler", "Bitte alle Pflichtfelder ausfüllen.");
+        if (!name || isNaN(numericAmount) || !parsedStart) {
+            Alert.alert("Fehler", "Bitte alle Pflichtfelder korrekt ausfüllen.");
             return;
         }
     }
 
     const currentInterval = activeTab === 'income' ? 0 : interval;
+    const finalValue = numericAmount.toFixed(2);
 
     const newEntry = {
       id: Date.now().toString(),
       name,
-      amount: parseFloat(amount).toFixed(2),
+      amount: finalValue,
       note, 
       image: selectedImage,
       interval: currentInterval === 0 ? 'Einmalig' : (currentInterval === 1 ? 'Monatlich' : `Alle ${currentInterval} Monate`),
-      dates: calculateRangeDates(startDate, activeTab === 'income' ? startDate : endDate, currentInterval, parseFloat(amount).toFixed(2))
+      dates: calculateRangeDates(startDate, activeTab === 'income' ? startDate : endDate, currentInterval, finalValue)
     };
 
     if (activeTab === 'add') {
